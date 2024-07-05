@@ -80,4 +80,18 @@ public class TaskService {
 
         taskRepository.delete(taskToDelete);
     }
+
+    @Transactional
+    public void deleteTasks(List<Long> taskIds, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
+
+        List<TaskModel> tasksToDelete = taskRepository.findAllByIdInAndUser(taskIds, user);
+
+        if (tasksToDelete.size() != taskIds.size()) {
+            throw new ResourceNotFoundException("One or more tasks not found or do not belong to the user.", "", "");
+        }
+
+        taskRepository.deleteAll(tasksToDelete);
+    }
 }
