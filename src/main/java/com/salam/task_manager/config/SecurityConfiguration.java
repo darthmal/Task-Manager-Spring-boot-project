@@ -11,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.salam.task_manager.models.user.Role.ADMIN;
+import static com.salam.task_manager.models.user.Role.USER;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -23,8 +24,6 @@ public class SecurityConfiguration {
             "/api/auth/**",
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/connection/check",
-            "/commands/execute"
     };
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
@@ -38,6 +37,8 @@ public class SecurityConfiguration {
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
                                 .requestMatchers("/api/demo").hasAnyRole(ADMIN.name())
+                                .requestMatchers("/api/tasks").hasAnyRole(ADMIN.name(), USER.name())
+                                .requestMatchers("/api/tasks/**").hasAnyRole(ADMIN.name(), USER.name())
                                 .anyRequest()
                                 .authenticated()
                 )
