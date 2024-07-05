@@ -10,6 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/tasks")
 @AllArgsConstructor
@@ -26,4 +28,10 @@ public class TaskController {
         return new ResponseEntity<>(taskService.createTask(taskDto, username), HttpStatus.CREATED);
     }
 
+    @GetMapping
+    public ResponseEntity<List<TaskDto>> getMyTasks() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<TaskDto> tasks = taskService.getTasksForUser(username);
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    }
 }

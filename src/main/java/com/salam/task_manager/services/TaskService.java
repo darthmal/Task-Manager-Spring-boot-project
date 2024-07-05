@@ -11,6 +11,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 public class TaskService {
@@ -27,9 +30,18 @@ public class TaskService {
         TaskModel task = taskMapper.toEntity(taskDto, user);
         task.setUser(user);
         task.setCompleted(false);
-//        TaskModel savedTask = taskRepository.save(task);
         return taskMapper.toDto(taskRepository.save(task));
     }
 
+    public List<TaskDto> getTasksForUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
+
+        List<TaskModel> tasks = taskRepository.findByUser(user);
+
+        return tasks.stream()
+                .map(taskMapper::toDto)
+                .collect(Collectors.toList());
+    }
 
 }
