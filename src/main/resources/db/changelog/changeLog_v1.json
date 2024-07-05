@@ -1,0 +1,132 @@
+{
+  "databaseChangeLog": [
+    {
+      "changeSet": {
+        "id": "1",
+        "author": "Salam",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "_user",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "int",
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "firstname",
+                    "type": "varchar(255)"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "last_name",
+                    "type": "varchar(255)"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "username",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "unique": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "email",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "unique": true,
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "password",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "role",
+                    "type": "varchar(50)",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "changeSet": {
+        "id": "2",
+        "author": "Salam",
+        "changes": [
+          {
+            "insert": {
+              "tableName": "_user",
+              "columns": [
+                {
+                  "column": {
+                    "name": "firstname",
+                    "value": "John"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "last_name",
+                    "value": "Doe"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "username",
+                    "value": "admin"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "email",
+                    "value": "salam@admin.com"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "password",
+                    "value": "$2a$10$b3yM4Xf1mYvVF40d8ZPAie/6.14sg0sEIMUynSndUN/BUSHh40uq2"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "role",
+                    "value": "ADMIN"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
