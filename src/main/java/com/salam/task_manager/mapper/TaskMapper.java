@@ -5,7 +5,6 @@ import com.salam.task_manager.models.TaskModel;
 import com.salam.task_manager.models.user.User;
 import org.mapstruct.Mapper;
 
-//@Mapper(componentModel = "spring") // Spring integration
 public interface TaskMapper {
 
     TaskDto toDto(TaskModel task);

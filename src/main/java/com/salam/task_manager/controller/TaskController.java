@@ -42,4 +42,11 @@ public class TaskController {
         TaskDto updatedTask = taskService.updateTask(taskId, updatedTaskDto, username);
         return new ResponseEntity<>(updatedTask, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTask(@PathVariable("id") Long taskId) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        taskService.deleteTask(taskId, username);
+        return new ResponseEntity<>("Deleted successfully", HttpStatus.NO_CONTENT);
+    }
 }

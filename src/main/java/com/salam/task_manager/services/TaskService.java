@@ -45,7 +45,6 @@ public class TaskService {
     }
 
 
-    // Update taks
 
     @Transactional
     public TaskDto updateTask(Long taskId, TaskDto updatedTaskDto, String username) {
@@ -55,7 +54,7 @@ public class TaskService {
         TaskModel existingTask = taskRepository.findByIdAndUser(taskId, user) // Fetch task by ID and user
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: ", taskId.toString(), ""));
 
-        // Update only the provided fields (partial update)
+        // Update only the provided fields
         if (updatedTaskDto.getTitle() != null) {
             existingTask.setTitle(updatedTaskDto.getTitle());
         }
@@ -68,5 +67,17 @@ public class TaskService {
         existingTask.setCompleted(updatedTaskDto.isCompleted());
 
         return taskMapper.toDto(taskRepository.save(existingTask));
+    }
+
+
+    @Transactional
+    public void deleteTask(Long taskId, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
+
+        TaskModel taskToDelete = taskRepository.findByIdAndUser(taskId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: ", taskId.toString(), ""));
+
+        taskRepository.delete(taskToDelete);
     }
 }

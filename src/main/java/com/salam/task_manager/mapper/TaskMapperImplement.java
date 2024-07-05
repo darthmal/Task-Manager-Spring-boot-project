@@ -18,7 +18,6 @@ public class TaskMapperImplement implements TaskMapper{
 
     @Override
     public TaskDto toDto(TaskModel task) {
-        System.out.println(task);
         TaskDto taskDto = new TaskDto();
         taskDto.setId(task.getId());
         taskDto.setCompleted(task.isCompleted());
@@ -28,17 +27,11 @@ public class TaskMapperImplement implements TaskMapper{
         taskDto.setDueDate(task.getDueDate());
         taskDto.setCreatedAt(task.getCreatedAt());
         taskDto.setUpdatedAt(task.getUpdatedAt());
-        System.out.println(taskDto);
-        System.out.println("Id");
-        System.out.println(task.getUser().getId());
         return taskDto;
     }
 
     @Override
     public TaskModel toEntity(TaskDto taskDto, User user) {
-        System.out.println(taskDto);
-//        User user = userRepository.findById(Math.toIntExact(taskDto.getUserId()))
-//                .orElseThrow(() -> new ResourceNotFoundException("User not found with id", "", ""));
         TaskModel taskModel = new TaskModel();
         taskModel.setId(taskDto.getId());
         taskModel.setUser(user);
@@ -48,7 +41,6 @@ public class TaskMapperImplement implements TaskMapper{
         taskModel.setCreatedAt(taskDto.getCreatedAt());
         taskModel.setUpdatedAt(taskDto.getUpdatedAt());
         taskModel.setDueDate(taskDto.getDueDate());
-        System.out.println(taskModel);
         return taskModel;
     }
 }
