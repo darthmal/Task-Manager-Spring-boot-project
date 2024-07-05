@@ -34,4 +34,12 @@ public class TaskController {
         List<TaskDto> tasks = taskService.getTasksForUser(username);
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TaskDto> updateTask(@PathVariable("id") Long taskId,
+                                              @Valid @RequestBody TaskDto updatedTaskDto) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        TaskDto updatedTask = taskService.updateTask(taskId, updatedTaskDto, username);
+        return new ResponseEntity<>(updatedTask, HttpStatus.OK);
+    }
 }
