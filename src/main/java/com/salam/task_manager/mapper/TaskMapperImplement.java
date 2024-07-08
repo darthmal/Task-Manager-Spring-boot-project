@@ -20,7 +20,7 @@ public class TaskMapperImplement implements TaskMapper{
     public TaskDto toDto(TaskModel task) {
         TaskDto taskDto = new TaskDto();
         taskDto.setId(task.getId());
-        taskDto.setCompleted(task.isCompleted());
+        taskDto.setStatus(task.getStatus());
         taskDto.setTitle(task.getTitle());
         taskDto.setDescription(task.getDescription());
         taskDto.setUserId(task.getUser().getId());
@@ -37,7 +37,7 @@ public class TaskMapperImplement implements TaskMapper{
         taskModel.setUser(user);
         taskModel.setTitle(taskDto.getTitle());
         taskModel.setDescription(taskDto.getDescription());
-        taskModel.setCompleted(taskDto.isCompleted());
+        taskModel.setStatus(taskDto.getStatus());
         taskModel.setCreatedAt(taskDto.getCreatedAt());
         taskModel.setUpdatedAt(taskDto.getUpdatedAt());
         taskModel.setDueDate(taskDto.getDueDate());

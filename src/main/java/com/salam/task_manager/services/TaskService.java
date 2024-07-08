@@ -4,6 +4,7 @@ import com.salam.task_manager.dto.TaskDto;
 import com.salam.task_manager.exception.ResourceNotFoundException;
 import com.salam.task_manager.mapper.TaskMapper;
 import com.salam.task_manager.models.TaskModel;
+import com.salam.task_manager.models.TaskStatus;
 import com.salam.task_manager.models.user.User;
 import com.salam.task_manager.repository.TaskRepository;
 import com.salam.task_manager.repository.UserRepository;
@@ -29,7 +30,7 @@ public class TaskService {
 
         TaskModel task = taskMapper.toEntity(taskDto, user);
         task.setUser(user);
-        task.setCompleted(false);
+        task.setStatus(TaskStatus.PENDING);
         return taskMapper.toDto(taskRepository.save(task));
     }
 
@@ -64,7 +65,7 @@ public class TaskService {
         if (updatedTaskDto.getDueDate() != null) {
             existingTask.setDueDate(updatedTaskDto.getDueDate());
         }
-        existingTask.setCompleted(updatedTaskDto.isCompleted());
+        existingTask.setStatus(updatedTaskDto.getStatus());
 
         return taskMapper.toDto(taskRepository.save(existingTask));
     }
