@@ -1,6 +1,7 @@
 package com.salam.task_manager.controller;
 
-import com.salam.task_manager.dto.TaskDto;
+import com.salam.task_manager.dto.TaskResponseDto;
+import com.salam.task_manager.dto.TaskRequestDto;
 import com.salam.task_manager.services.TaskService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -18,12 +19,12 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<TaskDto> createTask(@Valid @RequestBody TaskDto taskDto) {
+    public ResponseEntity<TaskResponseDto> createTask(@Valid @RequestBody TaskRequestDto taskRequestDto) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
         String username = userDetails.getUsername();
         System.out.println(username);
-        return new ResponseEntity<>(taskService.createTask(taskDto, username), HttpStatus.CREATED);
+        return new ResponseEntity<>(taskService.createTask(taskRequestDto, username), HttpStatus.CREATED);
     }
 
 }

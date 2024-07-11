@@ -25,7 +25,7 @@ public class TaskModel {
 
     private ZonedDateTime dueDate;
 
-    private boolean completed;
+    private TaskStatus status;
 
     @Column(nullable = false, updatable = false)
     private ZonedDateTime createdAt;
@@ -39,10 +39,6 @@ public class TaskModel {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
     }
 
     @PrePersist

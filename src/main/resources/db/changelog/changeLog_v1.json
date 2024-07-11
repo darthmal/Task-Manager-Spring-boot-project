@@ -172,9 +172,9 @@
                 },
                 {
                   "column": {
-                    "name": "completed",
-                    "type": "boolean",
-                    "defaultValueBoolean": false
+                    "name": "status",
+                    "type": "varchar(255)",
+                    "defaultValueBoolean": "PENDING"
                   }
                 },
                 {
