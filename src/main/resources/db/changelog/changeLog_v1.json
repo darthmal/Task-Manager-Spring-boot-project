@@ -127,6 +127,93 @@
           }
         ]
       }
+    },
+
+    {
+      "changeSet": {
+        "id": "3",
+        "author": "Salam",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "task",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "bigint",
+                    "autoIncrement": true,
+                    "constraints": {
+                      "primaryKey": true
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "title",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "nullable": false,
+                      "unique": true
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "description",
+                    "type": "varchar(255)"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "due_date",
+                    "type": "timestamp with time zone"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "status",
+                    "type": "varchar(255)",
+                    "defaultValueBoolean": "PENDING"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "int",
+                    "constraints": {
+                      "nullable": false,
+                      "foreignKey": {
+                        "name": "fk_task_user",
+                        "referencedTableName": "_user",
+                        "referencedColumnNames": "id"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
     }
   ]
 }
