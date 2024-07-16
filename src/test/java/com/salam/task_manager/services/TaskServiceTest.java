@@ -1,10 +1,12 @@
 package com.salam.task_manager.services;
 
+import com.salam.task_manager.dto.TaskRequestUpdatdeDto;
 import com.salam.task_manager.dto.TaskResponseDto;
 import com.salam.task_manager.dto.TaskRequestDto;
 import com.salam.task_manager.exception.ResourceNotFoundException;
 import com.salam.task_manager.mapper.TaskMapper;
 import com.salam.task_manager.models.TaskModel;
+import com.salam.task_manager.models.TaskStatus;
 import com.salam.task_manager.models.user.User;
 import com.salam.task_manager.repository.TaskRepository;
 import com.salam.task_manager.repository.UserRepository;
@@ -15,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +45,7 @@ public class TaskServiceTest {
     private TaskModel task;
     private TaskRequestDto taskRequestDto;
     private TaskResponseDto taskResponseDto;
+    private TaskRequestUpdatdeDto taskRequestUpdatdeDto;
 
     @BeforeEach
     void setUp() {
@@ -61,6 +65,12 @@ public class TaskServiceTest {
         taskResponseDto.setId(1L);
         taskResponseDto.setTitle("Test Task");
         taskResponseDto.setUserId(1L);
+
+        taskRequestUpdatdeDto = new TaskRequestUpdatdeDto();
+        taskRequestUpdatdeDto.setTitle("Updated Task Title");
+        taskRequestUpdatdeDto.setDescription("Updated Task Description");
+        taskRequestUpdatdeDto.setDueDate(ZonedDateTime.now().plusDays(1));
+        taskRequestUpdatdeDto.setStatus(TaskStatus.DONE);
     }
 
     @Test
@@ -114,24 +124,32 @@ public class TaskServiceTest {
     @Test
     void testUpdateTask_Success() {
         Long taskId = 1L;
-        TaskRequestDto updatedTaskDto = new TaskRequestDto();
-        updatedTaskDto.setTitle("Updated Task Title");
-        updatedTaskDto.setDescription("Updated Task Description");
-
-        // Update the taskResponseDto object with expected values
-        taskResponseDto.setTitle("Updated Task Title");
-        taskResponseDto.setDescription("Updated Task Description");
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         when(taskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(TaskModel.class))).thenReturn(task);
+        when(taskRepository.save(any(TaskModel.class))).thenAnswer(invocation -> {
+            TaskModel taskToUpdate = invocation.getArgument(0);
+            taskToUpdate.setTitle(taskRequestUpdatdeDto.getTitle());
+            taskToUpdate.setDescription(taskRequestUpdatdeDto.getDescription());
+            taskToUpdate.setDueDate(taskRequestUpdatdeDto.getDueDate());
+            taskToUpdate.setStatus(taskRequestUpdatdeDto.getStatus());
+            return taskToUpdate;
+        });
+
+        // Update taskResponseDto to reflect updated values
+        taskResponseDto.setTitle(taskRequestUpdatdeDto.getTitle());
+        taskResponseDto.setDescription(taskRequestUpdatdeDto.getDescription());
+        taskResponseDto.setDueDate(taskRequestUpdatdeDto.getDueDate());
+        taskResponseDto.setStatus(taskRequestUpdatdeDto.getStatus());
 
         when(taskMapper.toDto(task)).thenReturn(taskResponseDto);
 
-        TaskResponseDto updatedTaskResponseDto = taskService.updateTask(taskId, updatedTaskDto, user.getUsername());
+        TaskResponseDto updatedTaskResponseDto = taskService.updateTask(taskId, taskRequestUpdatdeDto, user.getUsername());
 
-        assertThat(updatedTaskResponseDto.getTitle()).isEqualTo("Updated Task Title");
-        assertThat(updatedTaskResponseDto.getDescription()).isEqualTo("Updated Task Description");
+        assertThat(updatedTaskResponseDto.getTitle()).isEqualTo(taskRequestUpdatdeDto.getTitle());
+        assertThat(updatedTaskResponseDto.getDescription()).isEqualTo(taskRequestUpdatdeDto.getDescription());
+        assertThat(updatedTaskResponseDto.getDueDate()).isEqualTo(taskRequestUpdatdeDto.getDueDate());
+        assertThat(updatedTaskResponseDto.getStatus()).isEqualTo(taskRequestUpdatdeDto.getStatus());
 
         verify(taskRepository, times(1)).save(any(TaskModel.class));
     }
@@ -139,7 +157,7 @@ public class TaskServiceTest {
     @Test
     void testUpdateTask_UserNotFound() {
         Long taskId = 1L;
-        TaskRequestDto updatedTaskDto = new TaskRequestDto();
+        TaskRequestUpdatdeDto updatedTaskDto = new TaskRequestUpdatdeDto();
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
 
@@ -154,7 +172,7 @@ public class TaskServiceTest {
     @Test
     void testUpdateTask_TaskNotFound() {
         Long taskId = 1L;
-        TaskRequestDto updatedTaskDto = new TaskRequestDto();
+        TaskRequestUpdatdeDto updatedTaskDto = new TaskRequestUpdatdeDto();
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         when(taskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.empty());

@@ -1,5 +1,6 @@
 package com.salam.task_manager.controller;
 
+import com.salam.task_manager.dto.TaskRequestUpdatdeDto;
 import com.salam.task_manager.dto.TaskResponseDto;
 import com.salam.task_manager.dto.TaskRequestDto;
 import com.salam.task_manager.services.TaskService;
@@ -41,7 +42,7 @@ public class TaskController {
     // update user task
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponseDto> updateTask(@PathVariable("id") Long taskId,
-                                              @Valid @RequestBody TaskRequestDto updatedTaskDto) {
+                                              @Valid @RequestBody TaskRequestUpdatdeDto updatedTaskDto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         TaskResponseDto updatedTask = taskService.updateTask(taskId, updatedTaskDto, username);
         return new ResponseEntity<>(updatedTask, HttpStatus.OK);

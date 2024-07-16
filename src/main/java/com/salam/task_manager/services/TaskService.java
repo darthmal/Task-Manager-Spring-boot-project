@@ -1,5 +1,6 @@
 package com.salam.task_manager.services;
 
+import com.salam.task_manager.dto.TaskRequestUpdatdeDto;
 import com.salam.task_manager.dto.TaskResponseDto;
 import com.salam.task_manager.dto.TaskRequestDto;
 import com.salam.task_manager.exception.ResourceNotFoundException;
@@ -51,7 +52,7 @@ public class TaskService {
 
     // Update user's task
     @Transactional
-    public TaskResponseDto updateTask(Long taskId, TaskRequestDto updatedTaskDto, String username) {
+    public TaskResponseDto updateTask(Long taskId, TaskRequestUpdatdeDto updatedTaskDto, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
 
@@ -59,18 +60,7 @@ public class TaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: ", taskId.toString(), ""));
 
         // Update only the provided fields
-        if (updatedTaskDto.getTitle() != null) {
-            existingTask.setTitle(updatedTaskDto.getTitle());
-        }
-        if (updatedTaskDto.getDescription() != null) {
-            existingTask.setDescription(updatedTaskDto.getDescription());
-        }
-        if (updatedTaskDto.getDueDate() != null) {
-            existingTask.setDueDate(updatedTaskDto.getDueDate());
-        }
-        if (updatedTaskDto.getStatus() != null) {
-            existingTask.setStatus(updatedTaskDto.getStatus());
-        }
+        taskMapper.updateTaskFromDto(updatedTaskDto, existingTask);
         TaskModel updatedTask = taskRepository.save(existingTask);
         return taskMapper.toDto(updatedTask);
     }
