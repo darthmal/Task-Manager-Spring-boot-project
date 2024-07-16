@@ -49,5 +49,31 @@ public class TaskService {
                 .collect(Collectors.toList());
     }
 
+    // Update user's task
+    @Transactional
+    public TaskResponseDto updateTask(Long taskId, TaskRequestDto updatedTaskDto, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
+
+        TaskModel existingTask = taskRepository.findByIdAndUser(taskId, user) // Fetch task by ID and user
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: ", taskId.toString(), ""));
+
+        // Update only the provided fields
+        if (updatedTaskDto.getTitle() != null) {
+            existingTask.setTitle(updatedTaskDto.getTitle());
+        }
+        if (updatedTaskDto.getDescription() != null) {
+            existingTask.setDescription(updatedTaskDto.getDescription());
+        }
+        if (updatedTaskDto.getDueDate() != null) {
+            existingTask.setDueDate(updatedTaskDto.getDueDate());
+        }
+        if (updatedTaskDto.getStatus() != null) {
+            existingTask.setStatus(updatedTaskDto.getStatus());
+        }
+        TaskModel updatedTask = taskRepository.save(existingTask);
+        return taskMapper.toDto(updatedTask);
+    }
+
 
 }
