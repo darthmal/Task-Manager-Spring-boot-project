@@ -11,6 +11,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/tasks")
 @AllArgsConstructor
@@ -18,6 +20,7 @@ public class TaskController {
 
     private final TaskService taskService;
 
+    // Add new task
     @PostMapping
     public ResponseEntity<TaskResponseDto> createTask(@Valid @RequestBody TaskRequestDto taskRequestDto) {
         UserDetails userDetails = (UserDetails) SecurityContextHolder
@@ -25,6 +28,14 @@ public class TaskController {
         String username = userDetails.getUsername();
         System.out.println(username);
         return new ResponseEntity<>(taskService.createTask(taskRequestDto, username), HttpStatus.CREATED);
+    }
+
+    // List of all logged in user task's
+    @GetMapping
+    public ResponseEntity<List<TaskResponseDto>> getMyTasks() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<TaskResponseDto> tasks = taskService.getTasksForUser(username);
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
 }
