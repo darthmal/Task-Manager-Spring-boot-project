@@ -1,7 +1,10 @@
 package com.salam.task_manager.controller;
 
+import com.salam.task_manager.dto.TaskRequestUpdatdeDto;
 import com.salam.task_manager.dto.TaskResponseDto;
 import com.salam.task_manager.dto.TaskRequestDto;
+import com.salam.task_manager.exception.ResourceNotFoundException;
+import com.salam.task_manager.models.TaskStatus;
 import com.salam.task_manager.services.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,6 +38,7 @@ public class TaskControllerTest {
     private TaskController taskController;
 
     private TaskRequestDto taskRequestDto;
+    private TaskRequestUpdatdeDto taskRequestUpdatdeDto;
     private TaskResponseDto taskResponseDto;
 
     @BeforeEach
@@ -50,6 +54,12 @@ public class TaskControllerTest {
         taskResponseDto.setDescription("Test Description");
         taskResponseDto.setUserId(1L);
         taskResponseDto.setDueDate(ZonedDateTime.now());
+
+        taskRequestUpdatdeDto = new TaskRequestUpdatdeDto();
+        taskRequestUpdatdeDto.setTitle("Updated Task Title");
+        taskRequestUpdatdeDto.setDescription("Updated Task Description");
+        taskRequestUpdatdeDto.setDueDate(ZonedDateTime.now().plusDays(1));
+        taskRequestUpdatdeDto.setStatus(TaskStatus.DONE);
 
         // Set up mock authentication
         UserDetails userDetails = new User("testuser", "password", List.of(new SimpleGrantedAuthority("ROLE_USER")));
@@ -78,5 +88,19 @@ public class TaskControllerTest {
         assertThat(response.getBody()).hasSize(1);
         assertThat(response.getBody().get(0)).isEqualTo(taskResponseDto);
         verify(taskService, times(1)).getTasksForUser(anyString());
+    }
+
+    @Test
+    void testUpdateTask_Success() {
+        Long taskId = 1L;
+
+        when(taskService.updateTask(anyLong(), any(TaskRequestUpdatdeDto.class), anyString()))
+                .thenReturn(taskResponseDto);
+
+        ResponseEntity<TaskResponseDto> response = taskController.updateTask(taskId, taskRequestUpdatdeDto);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(taskResponseDto);
+        verify(taskService, times(1)).updateTask(taskId, taskRequestUpdatdeDto, "testuser");
     }
 }
