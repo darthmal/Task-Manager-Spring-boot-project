@@ -183,4 +183,23 @@ public class TaskServiceTest {
 
         verify(taskRepository, never()).save(any(TaskModel.class));
     }
+
+    @Test
+    void testDeleteTask_Success() {
+        Long taskId = 1L;
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+        TaskModel taskToDelete = new TaskModel();
+        taskToDelete.setId(taskId);
+        taskToDelete.setUser(user);
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(taskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.of(taskToDelete));
+        doNothing().when(taskRepository).delete(taskToDelete);
+
+        taskService.deleteTask(taskId, user.getUsername());
+
+        verify(taskRepository, times(1)).delete(taskToDelete);
+    }
 }

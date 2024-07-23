@@ -103,4 +103,16 @@ public class TaskControllerTest {
         assertThat(response.getBody()).isEqualTo(taskResponseDto);
         verify(taskService, times(1)).updateTask(taskId, taskRequestUpdatdeDto, "testuser");
     }
+
+    @Test
+    void testDeleteTask_Success() {
+        Long taskId = 1L;
+        doNothing().when(taskService).deleteTask(taskId, "testuser"); // Mock deleteTask to do nothing
+
+        ResponseEntity<String> response = taskController.deleteTask(taskId);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getBody()).isEqualTo("Deleted successfully");
+        verify(taskService, times(1)).deleteTask(taskId, "testuser");
+    }
 }

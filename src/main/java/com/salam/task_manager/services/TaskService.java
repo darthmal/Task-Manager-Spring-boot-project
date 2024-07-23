@@ -65,6 +65,7 @@ public class TaskService {
         return taskMapper.toDto(updatedTask);
     }
 
+    // Delete task by id
     @Transactional
     public void deleteTask(Long taskId, String username) {
         User user = userRepository.findByUsername(username)
