@@ -65,5 +65,16 @@ public class TaskService {
         return taskMapper.toDto(updatedTask);
     }
 
+    // Delete task by id
+    @Transactional
+    public void deleteTask(Long taskId, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
+
+        TaskModel taskToDelete = taskRepository.findByIdAndUser(taskId, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: ", taskId.toString(), ""));
+
+        taskRepository.delete(taskToDelete);
+    }
 
 }

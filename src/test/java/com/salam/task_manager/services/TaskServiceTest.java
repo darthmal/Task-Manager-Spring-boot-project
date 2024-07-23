@@ -183,4 +183,54 @@ public class TaskServiceTest {
 
         verify(taskRepository, never()).save(any(TaskModel.class));
     }
+
+    @Test
+    void testDeleteTask_Success() {
+        Long taskId = 1L;
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+        TaskModel taskToDelete = new TaskModel();
+        taskToDelete.setId(taskId);
+        taskToDelete.setUser(user);
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(taskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.of(taskToDelete));
+        doNothing().when(taskRepository).delete(taskToDelete);
+
+        taskService.deleteTask(taskId, user.getUsername());
+
+        verify(taskRepository, times(1)).delete(taskToDelete);
+    }
+
+    @Test
+    void testDeleteTask_UserNotFound_ThrowsException() {
+        Long taskId = 1L;
+        String username = "nonexistentuser";
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty()); // Simulate user not found
+
+        assertThatThrownBy(() -> taskService.deleteTask(taskId, username))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("User not found");
+
+        verify(taskRepository, never()).delete(any(TaskModel.class)); // No deletion should occur
+    }
+
+    @Test
+    void testDeleteTask_TaskNotFound_ThrowsException() {
+        Long taskId = 999L;
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(taskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.empty()); // Task not found
+
+        assertThatThrownBy(() -> taskService.deleteTask(taskId, user.getUsername()))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Task not found");
+
+        verify(taskRepository, never()).delete(any(TaskModel.class));
+    }
 }
