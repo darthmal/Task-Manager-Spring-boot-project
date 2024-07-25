@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -232,5 +233,74 @@ public class TaskServiceTest {
                 .hasMessageContaining("Task not found");
 
         verify(taskRepository, never()).delete(any(TaskModel.class));
+    }
+
+    @Test
+    void testDeleteTasks_Success() {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+
+        List<Long> taskIds = List.of(1L, 2L);
+        List<TaskModel> tasksToDelete = taskIds.stream()
+                .map(id -> {
+                    TaskModel task = new TaskModel();
+                    task.setId(id);
+                    task.setUser(user);
+                    return task;
+                })
+                .collect(Collectors.toList());
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(taskRepository.findAllByIdInAndUser(taskIds, user)).thenReturn(tasksToDelete);
+        doNothing().when(taskRepository).deleteAll(tasksToDelete);
+
+        taskService.deleteTasks(taskIds, user.getUsername());
+
+        verify(taskRepository, times(1)).deleteAll(tasksToDelete);
+    }
+
+    @Test
+    void testDeleteTasks_UserNotFound_ThrowsException() {
+        List<Long> taskIds = List.of(1L, 2L);
+        String username = "nonexistentuser";
+
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> taskService.deleteTasks(taskIds, username))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("User not found");
+
+        verify(taskRepository, never()).deleteAll(any());
+    }
+
+    // Helper method to create TaskModel instances
+    private TaskModel createTaskModel(Long id, User user) {
+        TaskModel task = new TaskModel();
+        task.setId(id);
+        task.setUser(user);
+        return task;
+    }
+
+    @Test
+    void testDeleteTasks_SomeTasksNotFound_ThrowsException() {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+
+        List<Long> taskIds = List.of(1L, 2L, 3L); // Requesting to delete 3 tasks
+        List<TaskModel> existingTasks = List.of(
+                createTaskModel(1L, user),
+                createTaskModel(2L, user)  // Only 2 tasks exist
+        );
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(taskRepository.findAllByIdInAndUser(taskIds, user)).thenReturn(existingTasks);
+
+        assertThatThrownBy(() -> taskService.deleteTasks(taskIds, user.getUsername()))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("One or more tasks not found");
+
+        verify(taskRepository, never()).deleteAll(any());
     }
 }

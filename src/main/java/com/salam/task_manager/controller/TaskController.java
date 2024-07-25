@@ -56,4 +56,12 @@ public class TaskController {
         return new ResponseEntity<>("Deleted successfully", HttpStatus.NO_CONTENT);
     }
 
+    // Delete multiple logged in user task's
+    @DeleteMapping
+    public ResponseEntity<String> deleteTasks(@RequestBody List<Long> taskIds) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        taskService.deleteTasks(taskIds, username);
+        return new ResponseEntity<>("Successfully deleted", HttpStatus.NO_CONTENT);
+    }
+
 }

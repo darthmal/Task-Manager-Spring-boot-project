@@ -77,4 +77,19 @@ public class TaskService {
         taskRepository.delete(taskToDelete);
     }
 
+    // Bulk delete
+    @Transactional
+    public void deleteTasks(List<Long> taskIds, String username) {
+        com.salam.task_manager.models.user.User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
+
+        List<TaskModel> tasksToDelete = taskRepository.findAllByIdInAndUser(taskIds, user);
+
+        if (tasksToDelete.size() != taskIds.size()) {
+            throw new ResourceNotFoundException("One or more tasks not found or do not belong to the user.", "", "");
+        }
+
+        taskRepository.deleteAll(tasksToDelete);
+    }
+
 }
