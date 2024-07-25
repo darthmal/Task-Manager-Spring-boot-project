@@ -138,5 +138,33 @@ public class TaskControllerTest {
         verify(taskService, times(1)).deleteTask(taskId, username);
     }
 
+    @Test
+    void testDeleteTasks_Success() {
+        List<Long> taskIds = List.of(1L, 2L, 3L);
+        doNothing().when(taskService).deleteTasks(taskIds, "testuser");
+
+        ResponseEntity<String> response = taskController.deleteTasks(taskIds);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+        assertThat(response.getBody()).isEqualTo("Successfully deleted");
+        verify(taskService, times(1)).deleteTasks(taskIds, "testuser");
+    }
+
+    @Test
+    void testDeleteTasks_SomeTasksNotFound_ReturnsNotFound() {
+        List<Long> taskIds = List.of(1L, 2L, 999L); // Include a non-existent ID
+
+        doThrow(new ResourceNotFoundException("One or more tasks not found", "", ""))
+                .when(taskService).deleteTasks(taskIds, "testuser");
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> taskController.deleteTasks(taskIds));
+
+        assertThat(exception.getRessourceName()).isEqualTo("One or more tasks not found");
+        assertThat(exception.getFieldValue()).isEqualTo("");
+        assertThat(exception.getFieldName()).isEqualTo("");
+
+        verify(taskService, times(1)).deleteTasks(taskIds, "testuser");
+    }
 
 }
