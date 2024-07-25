@@ -24,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,19 +51,19 @@ public class TaskControllerTest {
         taskRequestDto = new TaskRequestDto();
         taskRequestDto.setTitle("Test Task");
         taskRequestDto.setDescription("Test Description");
-        taskRequestDto.setDueDate(ZonedDateTime.now());
+        taskRequestDto.setDueDate(Date.from(ZonedDateTime.now().toInstant()));
 
         taskResponseDto = new TaskResponseDto();
-        taskResponseDto.setId(1L);
+        taskResponseDto.setId("1L");
         taskResponseDto.setTitle("Test Task");
         taskResponseDto.setDescription("Test Description");
-        taskResponseDto.setUserId(1L);
-        taskResponseDto.setDueDate(ZonedDateTime.now());
+        taskResponseDto.setUserId("1L");
+        taskResponseDto.setDueDate(Date.from(ZonedDateTime.now().toInstant()));
 
         taskRequestUpdatdeDto = new TaskRequestUpdatdeDto();
         taskRequestUpdatdeDto.setTitle("Updated Task Title");
         taskRequestUpdatdeDto.setDescription("Updated Task Description");
-        taskRequestUpdatdeDto.setDueDate(ZonedDateTime.now().plusDays(1));
+        taskRequestUpdatdeDto.setDueDate(Date.from(ZonedDateTime.now().plusDays(1).toInstant()));
         taskRequestUpdatdeDto.setStatus(TaskStatus.DONE);
 
         // Set up mock authentication
@@ -96,9 +97,9 @@ public class TaskControllerTest {
 
     @Test
     void testUpdateTask_Success() {
-        Long taskId = 1L;
+        String taskId = "1L";
 
-        when(taskService.updateTask(anyLong(), any(TaskRequestUpdatdeDto.class), anyString()))
+        when(taskService.updateTask(anyString(), any(TaskRequestUpdatdeDto.class), anyString()))
                 .thenReturn(taskResponseDto);
 
         ResponseEntity<TaskResponseDto> response = taskController.updateTask(taskId, taskRequestUpdatdeDto);
@@ -110,7 +111,7 @@ public class TaskControllerTest {
 
     @Test
     void testDeleteTask_Success() {
-        Long taskId = 1L;
+        String taskId = "1L";
         doNothing().when(taskService).deleteTask(taskId, "testuser"); // Mock deleteTask to do nothing
 
         ResponseEntity<String> response = taskController.deleteTask(taskId);
@@ -122,7 +123,7 @@ public class TaskControllerTest {
 
     @Test
     void testDeleteTask_TaskNotFound_ReturnsNotFound() {
-        Long taskId = 999L; // With an fictional Id
+        String taskId = "999L"; // With an fictional Id
         String username = "testuser";
 
         doThrow(new ResourceNotFoundException("Task not found", "", ""))
@@ -140,7 +141,7 @@ public class TaskControllerTest {
 
     @Test
     void testDeleteTasks_Success() {
-        List<Long> taskIds = List.of(1L, 2L, 3L);
+        List<String> taskIds = List.of("1L", "2L", "3L");
         doNothing().when(taskService).deleteTasks(taskIds, "testuser");
 
         ResponseEntity<String> response = taskController.deleteTasks(taskIds);
@@ -152,7 +153,7 @@ public class TaskControllerTest {
 
     @Test
     void testDeleteTasks_SomeTasksNotFound_ReturnsNotFound() {
-        List<Long> taskIds = List.of(1L, 2L, 999L); // Include a non-existent ID
+        List<String> taskIds = List.of("1L", "2L", "999L"); // Include a non-existent ID
 
         doThrow(new ResourceNotFoundException("One or more tasks not found", "", ""))
                 .when(taskService).deleteTasks(taskIds, "testuser");

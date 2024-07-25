@@ -4,15 +4,16 @@ import com.salam.task_manager.models.TaskStatus;
 import lombok.*;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 @Data
 public class TaskResponseDto {
-    private Long id;
+    private String id;
     private String title;
     private String description;
-    private Long userId;
-    private ZonedDateTime dueDate;
+    private String userId;
+    private Date dueDate;
     private TaskStatus status;
-    private ZonedDateTime createdAt;
-    private ZonedDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
 }
