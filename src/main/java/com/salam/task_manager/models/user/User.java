@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 import org.springframework.scheduling.config.Task;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,8 +25,11 @@ import java.util.List;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue
-    private Long id;
+    @org.springframework.data.annotation.Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    private String id;
+
     private String firstname;
     private String lastName;
 

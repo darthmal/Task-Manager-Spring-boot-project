@@ -3,8 +3,10 @@ package com.salam.task_manager.models;
 import com.salam.task_manager.models.user.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 @Entity
 @Data
@@ -15,23 +17,25 @@ import java.time.ZonedDateTime;
 public class TaskModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @org.springframework.data.annotation.Id
+    @GeneratedValue(generator = "system-uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
+    private String id;
 
     @Column(nullable = false, unique = true)
     private String title;
 
     private String description;
 
-    private ZonedDateTime dueDate;
+    private Date dueDate;
 
     private TaskStatus status;
 
     @Column(nullable = false, updatable = false)
-    private ZonedDateTime createdAt;
+    private Date createdAt;
 
     @Column(nullable = false)
-    private ZonedDateTime updatedAt;
+    private Date updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -43,12 +47,12 @@ public class TaskModel {
 
     @PrePersist
     public void prePersist() {
-        createdAt = ZonedDateTime.now();
+        createdAt = Date.from(ZonedDateTime.now().toInstant());
         updatedAt = createdAt;
     }
 
     @PreUpdate
     public void preUpdate() {
-        updatedAt = ZonedDateTime.now();
+        updatedAt = Date.from(ZonedDateTime.now().toInstant());
     }
 }

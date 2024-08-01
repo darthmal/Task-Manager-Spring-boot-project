@@ -41,7 +41,7 @@ public class TaskController {
 
     // update user task
     @PutMapping("/{id}")
-    public ResponseEntity<TaskResponseDto> updateTask(@PathVariable("id") Long taskId,
+    public ResponseEntity<TaskResponseDto> updateTask(@PathVariable("id") String taskId,
                                               @Valid @RequestBody TaskRequestUpdatdeDto updatedTaskDto) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         TaskResponseDto updatedTask = taskService.updateTask(taskId, updatedTaskDto, username);
@@ -50,7 +50,7 @@ public class TaskController {
 
     // Delete task by id
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTask(@PathVariable("id") Long taskId) {
+    public ResponseEntity<String> deleteTask(@PathVariable("id") String taskId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         taskService.deleteTask(taskId, username);
         return new ResponseEntity<>("Deleted successfully", HttpStatus.NO_CONTENT);
@@ -58,7 +58,7 @@ public class TaskController {
 
     // Delete multiple logged in user task's
     @DeleteMapping
-    public ResponseEntity<String> deleteTasks(@RequestBody List<Long> taskIds) {
+    public ResponseEntity<String> deleteTasks(@RequestBody List<String> taskIds) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         taskService.deleteTasks(taskIds, username);
         return new ResponseEntity<>("Successfully deleted", HttpStatus.NO_CONTENT);

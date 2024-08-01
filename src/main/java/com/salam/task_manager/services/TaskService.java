@@ -10,7 +10,17 @@ import com.salam.task_manager.models.TaskStatus;
 import com.salam.task_manager.models.user.User;
 import com.salam.task_manager.repository.TaskRepository;
 import com.salam.task_manager.repository.UserRepository;
+import com.salam.task_manager.repository.mongodb.MongoDbTaskRepository;
+import com.salam.task_manager.repository.mongodb.MongoDbUserRepository;
+import com.salam.task_manager.repository.postgresql.PostgresTaskRepository;
+import com.salam.task_manager.repository.postgresql.PostgresqlUserRepository;
+import com.salam.task_manager.utils.ProfileNameProvider;
+import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +28,47 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
 public class TaskService {
 
-    private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
+    private TaskRepository taskRepository;
+    private UserRepository userRepository;
     private final TaskMapper taskMapper;
+
+    private final ProfileNameProvider profileNameProvider;
+
+    @Autowired
+    public TaskService(UserRepository userRepository,
+                       TaskMapper taskMapper,
+                       ProfileNameProvider profileNameProvider) {
+        this.taskMapper = taskMapper;
+        this.profileNameProvider = profileNameProvider;
+    }
+
+    @Autowired
+    public void setTaskRepository(List<TaskRepository> repositories) {
+        String activeProfile = profileNameProvider.getActiveProfileName();
+
+        this.taskRepository = repositories.stream()
+                .filter(repository ->
+                        (activeProfile.equals("mongodb") && repository instanceof MongoDbTaskRepository) ||
+                                (activeProfile.equals("postgresql") && repository instanceof PostgresTaskRepository)
+                )
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No repository found for active profile: " + activeProfile));
+    }
+
+    @Autowired
+    public void setUserRepository(List<UserRepository> repositories) {
+        String activeProfile = profileNameProvider.getActiveProfileName();
+
+        this.userRepository = repositories.stream()
+                .filter(repository ->
+                        (activeProfile.equals("mongodb") && repository instanceof MongoDbUserRepository) ||
+                                (activeProfile.equals("postgresql") && repository instanceof PostgresqlUserRepository)
+                )
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No user repository found for active profile: " + activeProfile));
+    }
 
     // Create task
     @Transactional
@@ -52,7 +97,7 @@ public class TaskService {
 
     // Update user's task
     @Transactional
-    public TaskResponseDto updateTask(Long taskId, TaskRequestUpdatdeDto updatedTaskDto, String username) {
+    public TaskResponseDto updateTask(String taskId, TaskRequestUpdatdeDto updatedTaskDto, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
 
@@ -67,7 +112,7 @@ public class TaskService {
 
     // Delete task by id
     @Transactional
-    public void deleteTask(Long taskId, String username) {
+    public void deleteTask(String taskId, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
 
@@ -79,7 +124,7 @@ public class TaskService {
 
     // Bulk delete
     @Transactional
-    public void deleteTasks(List<Long> taskIds, String username) {
+    public void deleteTasks(List<String> taskIds, String username) {
         com.salam.task_manager.models.user.User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
 

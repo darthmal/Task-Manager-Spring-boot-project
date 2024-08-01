@@ -12,8 +12,7 @@
                 {
                   "column": {
                     "name": "id",
-                    "type": "int",
-                    "autoIncrement": true,
+                    "type": "VARCHAR(255)",
                     "constraints": {
                       "primaryKey": true,
                       "nullable": false
@@ -88,6 +87,12 @@
               "columns": [
                 {
                   "column": {
+                    "name": "id",
+                    "value": "your-generated-user-id"
+                  }
+                },
+                {
+                  "column": {
                     "name": "firstname",
                     "value": "John"
                   }
@@ -141,8 +146,7 @@
                 {
                   "column": {
                     "name": "id",
-                    "type": "bigint",
-                    "autoIncrement": true,
+                    "type": "VARCHAR(255)",
                     "constraints": {
                       "primaryKey": true
                     }
@@ -198,7 +202,7 @@
                 {
                   "column": {
                     "name": "user_id",
-                    "type": "int",
+                    "type": "varchar(255)",
                     "constraints": {
                       "nullable": false,
                       "foreignKey": {

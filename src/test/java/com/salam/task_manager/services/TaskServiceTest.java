@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ import static org.mockito.Mockito.*;
 public class TaskServiceTest {
 
     @Mock
-    private TaskRepository taskRepository;
+    private TaskRepository TaskRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -51,11 +52,11 @@ public class TaskServiceTest {
     @BeforeEach
     void setUp() {
         user = new User();
-        user.setId(1L);
+        user.setId("1L");
         user.setUsername("testuser");
 
         task = new TaskModel();
-        task.setId(1L);
+        task.setId("1L");
         task.setTitle("Test Task");
         task.setUser(user);
 
@@ -63,14 +64,14 @@ public class TaskServiceTest {
         taskRequestDto.setTitle("Test Task");
 
         taskResponseDto = new TaskResponseDto();
-        taskResponseDto.setId(1L);
+        taskResponseDto.setId("1L");
         taskResponseDto.setTitle("Test Task");
-        taskResponseDto.setUserId(1L);
+        taskResponseDto.setUserId("1L");
 
         taskRequestUpdatdeDto = new TaskRequestUpdatdeDto();
         taskRequestUpdatdeDto.setTitle("Updated Task Title");
         taskRequestUpdatdeDto.setDescription("Updated Task Description");
-        taskRequestUpdatdeDto.setDueDate(ZonedDateTime.now().plusDays(1));
+        taskRequestUpdatdeDto.setDueDate(Date.from(ZonedDateTime.now().plusDays(1).toInstant()));
         taskRequestUpdatdeDto.setStatus(TaskStatus.DONE);
     }
 
@@ -78,7 +79,7 @@ public class TaskServiceTest {
     void testCreateTask_Success() {
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         when(taskMapper.requestDtoToEntity(taskRequestDto, user)).thenReturn(task);
-        when(taskRepository.save(any(TaskModel.class))).thenReturn(task);
+        when(TaskRepository.save(any(TaskModel.class))).thenReturn(task);
         when(taskMapper.toDto(task)).thenReturn(taskResponseDto);
 
         TaskResponseDto createdTask = taskService.createTask(taskRequestDto, user.getUsername());
@@ -86,7 +87,7 @@ public class TaskServiceTest {
         assertThat(createdTask).isNotNull();
         assertThat(createdTask.getTitle()).isEqualTo(task.getTitle());
         assertThat(createdTask.getUserId()).isEqualTo(user.getId());
-        verify(taskRepository, times(1)).save(any(TaskModel.class));
+        verify(TaskRepository, times(1)).save(any(TaskModel.class));
     }
 
     @Test
@@ -97,13 +98,13 @@ public class TaskServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found with username:  not found with testuser: ");
 
-        verify(taskRepository, never()).save(any(TaskModel.class));
+        verify(TaskRepository, never()).save(any(TaskModel.class));
     }
 
     @Test
     void testGetTasksForUser_Success() {
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        when(taskRepository.findByUser(user)).thenReturn(List.of(task));
+        when(TaskRepository.findByUser(user)).thenReturn(List.of(task));
         when(taskMapper.toDto(task)).thenReturn(taskResponseDto);
 
         List<TaskResponseDto> tasks = taskService.getTasksForUser(user.getUsername());
@@ -124,11 +125,11 @@ public class TaskServiceTest {
 
     @Test
     void testUpdateTask_Success() {
-        Long taskId = 1L;
+        String taskId = "1L";
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        when(taskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(TaskModel.class))).thenAnswer(invocation -> {
+        when(TaskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.of(task));
+        when(TaskRepository.save(any(TaskModel.class))).thenAnswer(invocation -> {
             TaskModel taskToUpdate = invocation.getArgument(0);
             taskToUpdate.setTitle(taskRequestUpdatdeDto.getTitle());
             taskToUpdate.setDescription(taskRequestUpdatdeDto.getDescription());
@@ -152,12 +153,12 @@ public class TaskServiceTest {
         assertThat(updatedTaskResponseDto.getDueDate()).isEqualTo(taskRequestUpdatdeDto.getDueDate());
         assertThat(updatedTaskResponseDto.getStatus()).isEqualTo(taskRequestUpdatdeDto.getStatus());
 
-        verify(taskRepository, times(1)).save(any(TaskModel.class));
+        verify(TaskRepository, times(1)).save(any(TaskModel.class));
     }
 
     @Test
     void testUpdateTask_UserNotFound() {
-        Long taskId = 1L;
+        String taskId = "1L";
         TaskRequestUpdatdeDto updatedTaskDto = new TaskRequestUpdatdeDto();
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
@@ -166,47 +167,47 @@ public class TaskServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found with username:  not found with testuser: ");
 
-        verify(taskRepository, never()).findByIdAndUser(anyLong(), any(User.class));
-        verify(taskRepository, never()).save(any(TaskModel.class));
+        verify(TaskRepository, never()).findByIdAndUser(anyString(), any(User.class));
+        verify(TaskRepository, never()).save(any(TaskModel.class));
     }
 
     @Test
     void testUpdateTask_TaskNotFound() {
-        Long taskId = 1L;
+        String taskId = "1L";
         TaskRequestUpdatdeDto updatedTaskDto = new TaskRequestUpdatdeDto();
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        when(taskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.empty());
+        when(TaskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> taskService.updateTask(taskId, updatedTaskDto, user.getUsername()))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Task not found with ID:  not found with " + taskId.toString());
 
-        verify(taskRepository, never()).save(any(TaskModel.class));
+        verify(TaskRepository, never()).save(any(TaskModel.class));
     }
 
     @Test
     void testDeleteTask_Success() {
-        Long taskId = 1L;
+        String taskId = "1L";
         User user = new User();
-        user.setId(1L);
+        user.setId("1L");
         user.setUsername("testuser");
         TaskModel taskToDelete = new TaskModel();
         taskToDelete.setId(taskId);
         taskToDelete.setUser(user);
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        when(taskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.of(taskToDelete));
-        doNothing().when(taskRepository).delete(taskToDelete);
+        when(TaskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.of(taskToDelete));
+        doNothing().when(TaskRepository).delete(taskToDelete);
 
         taskService.deleteTask(taskId, user.getUsername());
 
-        verify(taskRepository, times(1)).delete(taskToDelete);
+        verify(TaskRepository, times(1)).delete(taskToDelete);
     }
 
     @Test
     void testDeleteTask_UserNotFound_ThrowsException() {
-        Long taskId = 1L;
+        String taskId = "1L";
         String username = "nonexistentuser";
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty()); // Simulate user not found
@@ -215,33 +216,33 @@ public class TaskServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
 
-        verify(taskRepository, never()).delete(any(TaskModel.class)); // No deletion should occur
+        verify(TaskRepository, never()).delete(any(TaskModel.class)); // No deletion should occur
     }
 
     @Test
     void testDeleteTask_TaskNotFound_ThrowsException() {
-        Long taskId = 999L;
+        String taskId = "999L";
         User user = new User();
-        user.setId(1L);
+        user.setId("1L");
         user.setUsername("testuser");
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        when(taskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.empty()); // Task not found
+        when(TaskRepository.findByIdAndUser(taskId, user)).thenReturn(Optional.empty()); // Task not found
 
         assertThatThrownBy(() -> taskService.deleteTask(taskId, user.getUsername()))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Task not found");
 
-        verify(taskRepository, never()).delete(any(TaskModel.class));
+        verify(TaskRepository, never()).delete(any(TaskModel.class));
     }
 
     @Test
     void testDeleteTasks_Success() {
         User user = new User();
-        user.setId(1L);
+        user.setId("1L");
         user.setUsername("testuser");
 
-        List<Long> taskIds = List.of(1L, 2L);
+        List<String> taskIds = List.of("1L", "2L");
         List<TaskModel> tasksToDelete = taskIds.stream()
                 .map(id -> {
                     TaskModel task = new TaskModel();
@@ -252,17 +253,17 @@ public class TaskServiceTest {
                 .collect(Collectors.toList());
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        when(taskRepository.findAllByIdInAndUser(taskIds, user)).thenReturn(tasksToDelete);
-        doNothing().when(taskRepository).deleteAll(tasksToDelete);
+        when(TaskRepository.findAllByIdInAndUser(taskIds, user)).thenReturn(tasksToDelete);
+        doNothing().when(TaskRepository).deleteAll(tasksToDelete);
 
         taskService.deleteTasks(taskIds, user.getUsername());
 
-        verify(taskRepository, times(1)).deleteAll(tasksToDelete);
+        verify(TaskRepository, times(1)).deleteAll(tasksToDelete);
     }
 
     @Test
     void testDeleteTasks_UserNotFound_ThrowsException() {
-        List<Long> taskIds = List.of(1L, 2L);
+        List<String> taskIds = List.of("1L", "2L");
         String username = "nonexistentuser";
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
@@ -271,11 +272,11 @@ public class TaskServiceTest {
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
 
-        verify(taskRepository, never()).deleteAll(any());
+        verify(TaskRepository, never()).deleteAll(any());
     }
 
     // Helper method to create TaskModel instances
-    private TaskModel createTaskModel(Long id, User user) {
+    private TaskModel createTaskModel(String id, User user) {
         TaskModel task = new TaskModel();
         task.setId(id);
         task.setUser(user);
@@ -285,22 +286,22 @@ public class TaskServiceTest {
     @Test
     void testDeleteTasks_SomeTasksNotFound_ThrowsException() {
         User user = new User();
-        user.setId(1L);
+        user.setId("1L");
         user.setUsername("testuser");
 
-        List<Long> taskIds = List.of(1L, 2L, 3L); // Requesting to delete 3 tasks
+        List<String> taskIds = List.of("1L", "2L", "3L"); // Requesting to delete 3 tasks
         List<TaskModel> existingTasks = List.of(
-                createTaskModel(1L, user),
-                createTaskModel(2L, user)  // Only 2 tasks exist
+                createTaskModel("1L", user),
+                createTaskModel("2L", user)  // Only 2 tasks exist
         );
 
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
-        when(taskRepository.findAllByIdInAndUser(taskIds, user)).thenReturn(existingTasks);
+        when(TaskRepository.findAllByIdInAndUser(taskIds, user)).thenReturn(existingTasks);
 
         assertThatThrownBy(() -> taskService.deleteTasks(taskIds, user.getUsername()))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("One or more tasks not found");
 
-        verify(taskRepository, never()).deleteAll(any());
+        verify(TaskRepository, never()).deleteAll(any());
     }
 }
