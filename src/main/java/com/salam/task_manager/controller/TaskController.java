@@ -50,18 +50,18 @@ public class TaskController {
 
     // Delete task by id
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTask(@PathVariable("id") String taskId) {
+    public ResponseEntity<Void> deleteTask(@PathVariable("id") String taskId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         taskService.deleteTask(taskId, username);
-        return new ResponseEntity<>("Deleted successfully", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     // Delete multiple logged in user task's
     @DeleteMapping
-    public ResponseEntity<String> deleteTasks(@RequestBody List<String> taskIds) {
+    public ResponseEntity<Void> deleteTasks(@RequestBody List<String> taskIds) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         taskService.deleteTasks(taskIds, username);
-        return new ResponseEntity<>("Successfully deleted", HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

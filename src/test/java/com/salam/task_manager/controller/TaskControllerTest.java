@@ -114,7 +114,7 @@ public class TaskControllerTest {
         String taskId = "1L";
         doNothing().when(taskService).deleteTask(taskId, "testuser"); // Mock deleteTask to do nothing
 
-        ResponseEntity<String> response = taskController.deleteTask(taskId);
+        ResponseEntity<Void> response = taskController.deleteTask(taskId);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(response.getBody()).isEqualTo("Deleted successfully");
@@ -144,7 +144,7 @@ public class TaskControllerTest {
         List<String> taskIds = List.of("1L", "2L", "3L");
         doNothing().when(taskService).deleteTasks(taskIds, "testuser");
 
-        ResponseEntity<String> response = taskController.deleteTasks(taskIds);
+        ResponseEntity<Void> response = taskController.deleteTasks(taskIds);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(response.getBody()).isEqualTo("Successfully deleted");
