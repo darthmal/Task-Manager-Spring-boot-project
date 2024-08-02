@@ -24,6 +24,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,14 +36,13 @@ public class TaskService {
     private UserRepository userRepository;
     private final TaskMapper taskMapper;
 
-    private final ProfileNameProvider profileNameProvider;
-
     @Autowired
-    public TaskService(UserRepository userRepository,
-                       TaskMapper taskMapper,
+    private  ProfileNameProvider profileNameProvider;
+
+    public TaskService(TaskMapper taskMapper,
                        ProfileNameProvider profileNameProvider) {
         this.taskMapper = taskMapper;
-        this.profileNameProvider = profileNameProvider;
+//        this.profileNameProvider = profileNameProvider;
     }
 
     @Autowired
@@ -73,6 +74,8 @@ public class TaskService {
     // Create task
     @Transactional
     public TaskResponseDto createTask(TaskRequestDto taskRequestDto, String username) {
+        String activeProfile = profileNameProvider.getActiveProfileName();
+        taskRequestDto.setId(null);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
         System.out.println(taskRequestDto);
@@ -80,6 +83,10 @@ public class TaskService {
         System.out.println(task);
         task.setUser(user);
         task.setStatus(TaskStatus.PENDING);
+        if (activeProfile.equals("mongodb")) {
+            task.setCreatedAt(Date.from(ZonedDateTime.now().toInstant()));
+            task.setUpdatedAt(Date.from(ZonedDateTime.now().toInstant()));
+        }
         return taskMapper.toDto(taskRepository.save(task));
     }
 
@@ -98,11 +105,17 @@ public class TaskService {
     // Update user's task
     @Transactional
     public TaskResponseDto updateTask(String taskId, TaskRequestUpdatdeDto updatedTaskDto, String username) {
+        String activeProfile = profileNameProvider.getActiveProfileName();
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: ", username, ""));
 
         TaskModel existingTask = taskRepository.findByIdAndUser(taskId, user) // Fetch task by ID and user
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with ID: ", taskId.toString(), ""));
+
+        // Somehow, the date is not updated for mongodb profile
+        if (activeProfile.equals("mongodb")) {
+            existingTask.setUpdatedAt(Date.from(ZonedDateTime.now().toInstant()));
+        }
 
         // Update only the provided fields
         taskMapper.updateTaskFromDto(updatedTaskDto, existingTask);
