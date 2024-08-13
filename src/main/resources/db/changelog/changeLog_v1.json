@@ -12,8 +12,7 @@
                 {
                   "column": {
                     "name": "id",
-                    "type": "int",
-                    "autoIncrement": true,
+                    "type": "VARCHAR(255)",
                     "constraints": {
                       "primaryKey": true,
                       "nullable": false
@@ -88,6 +87,12 @@
               "columns": [
                 {
                   "column": {
+                    "name": "id",
+                    "value": "your-generated-user-id"
+                  }
+                },
+                {
+                  "column": {
                     "name": "firstname",
                     "value": "John"
                   }
@@ -120,6 +125,92 @@
                   "column": {
                     "name": "role",
                     "value": "ADMIN"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+
+    {
+      "changeSet": {
+        "id": "3",
+        "author": "Salam",
+        "changes": [
+          {
+            "createTable": {
+              "tableName": "task",
+              "columns": [
+                {
+                  "column": {
+                    "name": "id",
+                    "type": "VARCHAR(255)",
+                    "constraints": {
+                      "primaryKey": true
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "title",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "nullable": false,
+                      "unique": true
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "description",
+                    "type": "varchar(255)"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "due_date",
+                    "type": "timestamp with time zone"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "status",
+                    "type": "varchar(255)",
+                    "defaultValueBoolean": "PENDING"
+                  }
+                },
+                {
+                  "column": {
+                    "name": "created_at",
+                    "type": "timestamp with time zone",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "updated_at",
+                    "type": "timestamp with time zone",
+                    "constraints": {
+                      "nullable": false
+                    }
+                  }
+                },
+                {
+                  "column": {
+                    "name": "user_id",
+                    "type": "varchar(255)",
+                    "constraints": {
+                      "nullable": false,
+                      "foreignKey": {
+                        "name": "fk_task_user",
+                        "referencedTableName": "_user",
+                        "referencedColumnNames": "id"
+                      }
+                    }
                   }
                 }
               ]
